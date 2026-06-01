@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1",
+  "repo": "wave-av/companion-module-wave",
+  "version": "0.1.0",
+  "lifecycle": "alpha",
+  "planeLayer": 0,
+  "foundationPin": "v1",
+  "maintainers": [{ "team": "operator" }],
+  "exposes": {
+    "renderSurfaces": [
+      { "kind": "bitfocus-companion-module", "id": "wave" }
+    ]
+  },
+  "consumes": {
+    "waveProducts": [
+      { "repo": "wave-av/wave-gateway" }
+    ],
+    "thirdParty": [
+      { "service": "bitfocus-companion", "licenseGated": false }
+    ],
+    "foundationFrameworks": ["frameworks/platform-registry"]
+  },
+  "tags": ["operator", "public", "stream-deck", "bitfocus-companion", "controller", "STUB-pending-rebuild"]
+}
