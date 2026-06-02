@@ -1,0 +1,33 @@
+{
+  "name": "companion-module-wave",
+  "version": "0.1.0",
+  "description": "Bitfocus Companion module for WAVE (scaffold; registry-grounded against wave-foundation state.json)",
+  "main": "dist/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types src/*.test.ts"
+  },
+  "keywords": [
+    "bitfocus-companion",
+    "companion-module",
+    "wave"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wave-av/companion-module-wave.git"
+  },
+  "dependencies": {
+    "@companion-module/base": "^1.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  }
+}

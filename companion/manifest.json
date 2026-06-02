@@ -1,0 +1,26 @@
+{
+  "id": "wave",
+  "name": "wave",
+  "shortname": "WAVE",
+  "description": "Control the WAVE Protocol Plane operator console (wave-desktop). Actions are intentionally empty in v0.1 — see README Roadmap for v0.2 surface.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": "https://github.com/wave-av/companion-module-wave",
+  "bugs": "https://github.com/wave-av/companion-module-wave/issues",
+  "maintainers": [
+    {
+      "name": "WAVE Online, LLC",
+      "email": "operator@wave.online"
+    }
+  ],
+  "manifestVersion": "1.4.0",
+  "products": ["WAVE Protocol Plane (operator)"],
+  "keywords": ["wave", "streaming", "live", "operator", "protocol-plane"],
+  "runtime": {
+    "type": "node18",
+    "api": "nodejs-ipc",
+    "apiVersion": "1.0.0",
+    "entrypoint": "dist/index.js"
+  },
+  "legacyIds": []
+}
