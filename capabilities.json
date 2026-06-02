@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1",
+  "repo": "wave-av/companion-module-wave",
+  "version": "0.1.0",
+  "lifecycle": "alpha",
+  "planeLayer": 0,
+  "foundationPin": "v1",
+  "maintainers": [{ "team": "operator" }],
+  "exposes": {
+    "renderSurfaces": [
+      {
+        "kind": "companion-module",
+        "id": "companion-module-wave"
+      }
+    ]
+  },
+  "consumes": {
+    "waveProducts": [
+      {
+        "repo": "wave-av/wave-foundation",
+        "endpoint": "frameworks/platform-registry/state.json"
+      },
+      {
+        "repo": "wave-av/wave-desktop",
+        "endpoint": "(future) localhost control plane — pending wave-desktop v0.3"
+      }
+    ],
+    "thirdParty": [
+      {
+        "service": "bitfocus-companion",
+        "licenseGated": false
+      }
+    ],
+    "foundationFrameworks": ["frameworks/platform-registry"]
+  },
+  "tags": ["operator", "public", "companion-module", "scaffold-alpha", "registry-grounded"]
+}
