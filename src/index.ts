@@ -25,7 +25,7 @@ interface WaveConfig {
 class WaveInstance extends InstanceBase<WaveConfig> {
   private state: RegistryState | null = null;
 
-  async init(config: WaveConfig): Promise<void> {
+  async init(_config: WaveConfig): Promise<void> {
     this.updateStatus(InstanceStatus.Connecting, 'fetching platform-registry state.json');
     try {
       this.state = await fetchState();
