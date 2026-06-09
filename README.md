@@ -19,9 +19,9 @@ The platform map this module grounds against:
 | Layer | Repo | Lifecycle |
 |---|---|---|
 | 0 — Operator | [`wave-av/wave-desktop`](https://github.com/wave-av/wave-desktop) | alpha |
-| 1 — Edge | [`wave-av/wave-clip-engine`](https://github.com/wave-av/wave-clip-engine) | beta |
-| 2 — Bridges | [`wave-av/wave-transports`](https://github.com/wave-av/wave-transports) | beta |
-| 3 — Local | [`wave-av/wave-flash`](https://github.com/wave-av/wave-flash) | beta |
+| 1 — Edge | clip rendering | beta |
+| 2 — Bridges | SRT/RTMP/NDI transports | beta |
+| 3 — Local | local capture | beta |
 | (SDK) | [`wave-av/sdk`](https://github.com/wave-av/sdk) | beta |
 | (MCP) | [`wave-av/mcp-server`](https://github.com/wave-av/mcp-server) | beta |
 | (Foundation) | [`wave-av/wave-foundation`](https://github.com/wave-av/wave-foundation) | ga |
