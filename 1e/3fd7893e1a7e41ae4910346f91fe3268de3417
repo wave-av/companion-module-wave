@@ -1,0 +1,19 @@
+README.md
+  s_5f27fa5b8237cd::t_21e60e65debec0 22-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "1e3fd7893e1a7e41ae4910346f91fe3268de3417",
+  "prompts": {},
+  "sessions": {
+    "s_5f27fa5b8237cd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "15ec0bf8-6164-4260-bae1-00c610d449bb",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Jake Fineman <jakefineman@gmail.com>"
+    }
+  }
+}
