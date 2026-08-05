@@ -54,7 +54,10 @@ jobs:
         run: |
           BASE="${PR_BASE_SHA:-$PUSH_BEFORE_SHA}"
           if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
-            BASE=$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)
+            BASE=$(git rev-parse HEAD~1 2>/dev/null) || {
+              echo "::error::cannot resolve a diff base (no event SHA and HEAD has no parent); refusing to fail open on an empty diff"
+              exit 1
+            }
           fi
           echo "diffing against $BASE"
           node "$RUNNER_TEMP/gov/node_modules/@wave-av/governance/bin/enforce.mjs" --changed "$BASE"
