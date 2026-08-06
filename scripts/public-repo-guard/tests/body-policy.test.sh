@@ -115,6 +115,28 @@ for case in "no argument at all::" "nonexistent path::$TMP/does-not-exist.txt"; 
   fi
 done
 
+# A broken FILTER stage must fail closed too, not just a broken scan. Shim rg so
+# the PCRE2 probe and the per-rule scans work but the guard:allow filter (the
+# only call using bare `-vN`) errors out — the gate must exit 2, never conclude
+# "clean" from a filter that produced no output because it broke.
+REAL_RG="$(command -v rg)"
+mkdir -p "$TMP/bin"
+cat > "$TMP/bin/rg" <<SHIM
+#!/usr/bin/env bash
+for a in "\$@"; do
+  [[ "\$a" == "-vN" ]] && exit 2
+done
+exec "$REAL_RG" "\$@"
+SHIM
+chmod +x "$TMP/bin/rg"
+printf 'Attaching the internal-only rollout plan for context.\n' > "$TMP/body.txt"
+PATH="$TMP/bin:$PATH" bash "$SCRIPT" "$TMP/body.txt" >/dev/null 2>&1; rc=$?
+if [[ "$rc" == 2 ]]; then
+  PASS=$((PASS+1)); printf '  ok   broken allowlist filter → exit 2 (fails closed)\n'
+else
+  FAIL=$((FAIL+1)); printf '  FAIL broken allowlist filter — want exit 2, got %s\n' "$rc"
+fi
+
 echo "  ---"
 if (( FAIL > 0 )); then
   echo "  $PASS passed, $FAIL FAILED"; exit 1

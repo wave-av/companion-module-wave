@@ -67,9 +67,22 @@ check() {
   # a doc example can simply break the string instead of carrying the marker.
   local matches="$raw"
   if [[ "${HARD:-0}" != "1" ]]; then
-    matches="$(printf '%s' "$matches" \
-      | rg -vN -- 'guard:allow[[:space:]]+[^[:space:]]' \
-      | rg -vNiP -- "$ABOUT_THE_CONTROL" || true)"
+    # Each filter stage is checked like the scan above: rg exit 1 just means
+    # every line was allowlisted (a clean result), but >=2 is a scanner error
+    # and MUST fail closed. An earlier draft ended this pipeline in `|| true`,
+    # which was the one place a broken scanner could turn real hits into an
+    # empty result and report a clean body.
+    local frc
+    matches="$(printf '%s' "$matches" | rg -vN -- 'guard:allow[[:space:]]+[^[:space:]]')"; frc=$?
+    if (( frc >= 2 )); then
+      echo "::error title=public-repo-guard ($name)::ripgrep failed (exit $frc) applying the guard:allow filter for rule '$name' — failing closed."
+      exit 2
+    fi
+    matches="$(printf '%s' "$matches" | rg -vNiP -- "$ABOUT_THE_CONTROL")"; frc=$?
+    if (( frc >= 2 )); then
+      echo "::error title=public-repo-guard ($name)::ripgrep failed (exit $frc) applying the about-the-control filter for rule '$name' — failing closed."
+      exit 2
+    fi
   fi
   [[ -z "$matches" ]] && return 0
   local count; count="$(printf '%s\n' "$matches" | grep -c '')"
