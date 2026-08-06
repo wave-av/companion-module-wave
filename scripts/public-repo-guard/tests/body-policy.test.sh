@@ -61,6 +61,10 @@ expect 1 'AWS access key id' \
 # can mention SECURITY.md and still paste a key.
 expect 1 'credential format blocks even on a line about the control' \
   "Per SECURITY.md, rotate ${AKID_FIXTURE} and file the incident."
+# Nor must guard:allow: the body is untrusted, so an author-typed marker cannot
+# be allowed to suppress the one class of hit that always means "rotate".
+expect 1 'guard:allow does not launder a credential hit' \
+  "Doc example: ${AKID_FIXTURE} is the shape. guard:allow documented-example"
 expect 1 'internal tailscale IP' \
   'It resolves to 100.71.4.19 from inside the fleet.'
 

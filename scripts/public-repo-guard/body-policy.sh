@@ -19,7 +19,10 @@
 #
 # Allowlisting: a line carrying `guard:allow <reason>` is exempt (an accidental
 # leak never carries the marker; a deliberate one is visible in a public diff), as
-# is any line matching the ABOUT-THE-CONTROL allowlist below.
+# is any line matching the ABOUT-THE-CONTROL allowlist below. NEITHER allowlist
+# applies to the HARD=1 rules (credential formats, concrete infra identifiers):
+# a body is untrusted text, so a marker an author can type must not be able to
+# launder the class of hit that is never legitimate and always means "rotate".
 set -uo pipefail
 
 FILE="${1:-}"
@@ -55,14 +58,18 @@ check() {
   # silently errors out locally while working on GNU/CI — the gate would then
   # disagree with itself depending on where it ran. rg is already required above.
   #
-  # guard:allow applies to EVERY rule — it is deliberate and visible in a public
-  # diff. The ABOUT_THE_CONTROL allowlist does NOT apply to HARD=1 rules: a
-  # credential-shaped string is never legitimate in prose, so a line that pastes
-  # one while also mentioning SECURITY.md or content-policy must still block.
-  local matches
-  matches="$(printf '%s' "$raw" | rg -vN -- 'guard:allow[[:space:]]+[^[:space:]]' || true)"
+  # NO allowlist applies to HARD=1 rules, guard:allow included. This scans an
+  # UNTRUSTED body: any line-level marker an author can type would let the same
+  # author append it to a leaking line and suppress the hit. For the soft rules
+  # that trade is accepted (the threat is the accidental paste, and the marker is
+  # publicly visible), but a credential-shaped string or concrete infra
+  # identifier is never legitimate in prose: real material must be rotated, and
+  # a doc example can simply break the string instead of carrying the marker.
+  local matches="$raw"
   if [[ "${HARD:-0}" != "1" ]]; then
-    matches="$(printf '%s' "$matches" | rg -vNiP -- "$ABOUT_THE_CONTROL" || true)"
+    matches="$(printf '%s' "$matches" \
+      | rg -vN -- 'guard:allow[[:space:]]+[^[:space:]]' \
+      | rg -vNiP -- "$ABOUT_THE_CONTROL" || true)"
   fi
   [[ -z "$matches" ]] && return 0
   local count; count="$(printf '%s\n' "$matches" | grep -c '')"
@@ -80,8 +87,8 @@ check() {
 }
 
 # --- Credential formats — never legitimate in prose --------------------------
-# HARD=1: talking about the control does not make a pasted key safe, so the
-# ABOUT_THE_CONTROL allowlist does not apply here (guard:allow still does).
+# HARD=1: no allowlist applies here. Talking about the control does not make a
+# pasted key safe, and guard:allow must not launder one either (see check()).
 HARD=1 check BLOCK stripe-live-key  '(sk|rk)_live_[A-Za-z0-9]{16,}'                 'Live Stripe secret/restricted key'
 HARD=1 check BLOCK stripe-account   'acct_[A-Za-z0-9]{16,}'                         'Live Stripe account ID — financial infra, never publish'
 HARD=1 check BLOCK anthropic-key    'sk-ant-(api|admin)[0-9]{2}-[A-Za-z0-9_-]{20,}' 'Real Anthropic API/admin key'
