@@ -57,6 +57,10 @@ expect 1 'internal-only marker' \
 AKID_FIXTURE="AKI""A1234567890ABCDEF"
 expect 1 'AWS access key id' \
   "The failing job had ${AKID_FIXTURE} configured."
+# The ABOUT_THE_CONTROL allowlist must not launder a hard credential hit: a line
+# can mention SECURITY.md and still paste a key.
+expect 1 'credential format blocks even on a line about the control' \
+  "Per SECURITY.md, rotate ${AKID_FIXTURE} and file the incident."
 expect 1 'internal tailscale IP' \
   'It resolves to 100.71.4.19 from inside the fleet.'
 
@@ -67,6 +71,12 @@ expect 0 'two private repos, no operational detail' \
   'Both wave-gateway and wave-transports will need a follow-up for this.'
 expect 0 'credential NAME with no private repo nearby' \
   'The handler now reads SOME_API_TOKEN from the environment instead of a literal.'
+# Case-insensitivity is scoped to repo NAMES only — an everyday lowercase
+# identifier near a repo name is not a SCREAMING_CASE credential name.
+expect 0 'lowercase identifier near a private repo' \
+  'Rotating the cache_key handling in wave-gateway improves latency.'
+expect 0 '"unbound on" is not a secret binding' \
+  'The listener stays unbound on wave-gateway cold starts.'
 expect 0 'public runner path is not an operator path' \
   'CI checks out to /home/runner/work/repo/repo before the scan runs.'  # enforce-ignore (fixture)
 expect 0 'talking about the control' \

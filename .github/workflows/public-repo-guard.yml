@@ -53,9 +53,12 @@ jobs:
     name: Secrets + content policy
     # Skips issue/comment events (the tree scan has nothing to say about a comment,
     # and the org should not pay for a gitleaks run every time anyone posts one) and
-    # skips `edited` (a title or body edit does not change the tree).
+    # skips `edited` for title/body edits (they do not change the tree) — EXCEPT
+    # when the edit retargeted the base branch: that also arrives as `edited` (with
+    # changes.base) and DOES change the merge result the tree scan must re-verify.
     if: >-
-      (github.event_name == 'pull_request' && github.event.action != 'edited')
+      (github.event_name == 'pull_request'
+        && (github.event.action != 'edited' || github.event.changes.base != null))
       || github.event_name == 'push'
       || github.event_name == 'workflow_dispatch'
     concurrency:
