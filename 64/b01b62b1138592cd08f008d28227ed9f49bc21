@@ -1,0 +1,19 @@
+CHANGELOG.md
+  s_37ab46253ba07e::t_e27c3450e01dcb 9-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "64b01b62b1138592cd08f008d28227ed9f49bc21",
+  "prompts": {},
+  "sessions": {
+    "s_37ab46253ba07e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-a8567cd0e933de65f",
+        "model": "unknown"
+      },
+      "human_author": "Jake Fineman <jakefineman@gmail.com>"
+    }
+  }
+}
