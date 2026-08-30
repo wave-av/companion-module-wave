@@ -1,0 +1,16 @@
+PERMISSIONS.md
+  h_af5ac1a9798224 1-55
+TESTING.md
+  h_af5ac1a9798224 1-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "d5d86afb319d47a95cd2d5d7b131f6c3d3c087e4",
+  "prompts": {},
+  "humans": {
+    "h_af5ac1a9798224": {
+      "author": "Jake Fineman <jakefineman@gmail.com>"
+    }
+  }
+}
