@@ -8,6 +8,18 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- **Registry URL was hardcoded to a private path** — `fetchState()` defaulted
+  to a raw-file URL on a private mirror. That path 404s for every public
+  install, so the module has always fallen back to scaffold mode in the
+  field, silently, and the "pick up registry updates without a module
+  release" mechanism the module is built around has never worked outside the
+  org. Fixed by removing the built-in default: `registryUrl` is now a
+  required, operator-supplied Companion config field, and "not configured"
+  is now a deliberate, distinctly-logged scaffold state instead of an
+  accidental one. A configured-but-unreachable registry still soft-fails
+  (5s timeout, never crashes the Companion process) but now logs
+  distinguishably from "not configured." See README → Configuration.
+
 - `pr-agent` lane: fork-triggered `/` commands are now refused, and the AI
   call's budget fits inside its step. Three defects, one of them only visible
   once the first was fixed.
