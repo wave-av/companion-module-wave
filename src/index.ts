@@ -5,9 +5,13 @@
 // yet, so there is nothing legitimate to wire up. Adding fake actions is the
 // exact failure mode the platform-registry rebuild is correcting.
 //
-// On init() we fetch `state.json` from wave-foundation@v1 and surface the
-// current platform state to the user via a status message + log line. Once
-// `wave-desktop` lands its control surface, v0.2 will wire real actions here.
+// On init() (and on every configUpdated()) we resolve the platform-registry
+// state from the operator-configured `registryUrl` and surface the current
+// platform state to the user via a status message + log line. This module
+// ships with no built-in registry endpoint — if `registryUrl` is left blank
+// the module runs in scaffold mode deliberately, distinct from a configured
+// URL that's merely unreachable. Once `wave-desktop` lands its control
+// surface, v0.2 will wire real actions here.
 
 import {
   InstanceBase,
@@ -15,9 +19,10 @@ import {
   runEntrypoint,
   type SomeCompanionConfigField,
 } from '@companion-module/base';
-import { fetchState, type RegistryState } from './registry.js';
+import { resolveRegistryState, type RegistryState } from './registry.js';
 
 interface WaveConfig {
+  registryUrl?: string;
   desktopHost: string; // intentionally unused in v0.1; reserved for v0.2
   desktopPort: number;
 }
@@ -25,25 +30,8 @@ interface WaveConfig {
 class WaveInstance extends InstanceBase<WaveConfig> {
   private state: RegistryState | null = null;
 
-  async init(_config: WaveConfig): Promise<void> {
-    this.updateStatus(InstanceStatus.Connecting, 'fetching platform-registry state.json');
-    try {
-      this.state = await fetchState();
-      const repos = this.state.capabilities.length;
-      const gen = this.state.generatedAt;
-      this.log('info', `platform-registry loaded: ${repos} repos (generated ${gen})`);
-      this.updateStatus(
-        InstanceStatus.Ok,
-        `v0.1 scaffold (registry: ${repos} repos) — actions land in v0.2`,
-      );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.log('warn', `could not load platform-registry state.json: ${message}`);
-      this.updateStatus(
-        InstanceStatus.UnknownWarning,
-        'platform-registry unreachable; module is running in scaffold mode',
-      );
-    }
+  async init(config: WaveConfig): Promise<void> {
+    await this.loadRegistry(config);
     this.setActionDefinitions({});
     this.setFeedbackDefinitions({});
     this.setVariableDefinitions([]);
@@ -54,8 +42,59 @@ class WaveInstance extends InstanceBase<WaveConfig> {
   }
 
   async configUpdated(config: WaveConfig): Promise<void> {
-    // No-op in v0.1 — config fields are reserved for v0.2.
     this.log('debug', `config update received (host=${config.desktopHost}:${config.desktopPort})`);
+    await this.loadRegistry(config);
+  }
+
+  /**
+   * Resolves the platform-registry state from config.registryUrl and maps
+   * each of the three states (unconfigured / loaded / unreachable) to a
+   * distinct log line + status, per the module's soft-failure contract.
+   */
+  private async loadRegistry(config: WaveConfig): Promise<void> {
+    const url = config.registryUrl?.trim();
+    if (url) {
+      this.updateStatus(InstanceStatus.Connecting, `fetching platform-registry state.json from ${url}`);
+    }
+
+    const result = await resolveRegistryState(url);
+    switch (result.mode) {
+      case 'scaffold-unconfigured': {
+        this.state = null;
+        this.log(
+          'info',
+          'no platform-registry URL configured; dynamic capability discovery is disabled — running in scaffold mode',
+        );
+        this.updateStatus(
+          InstanceStatus.Ok,
+          'v0.1 scaffold (no registry configured) — set a registry URL to enable capability discovery',
+        );
+        break;
+      }
+      case 'loaded': {
+        this.state = result.state;
+        const repos = result.state.capabilities.length;
+        const gen = result.state.generatedAt;
+        this.log('info', `platform-registry loaded: ${repos} repos (generated ${gen})`);
+        this.updateStatus(
+          InstanceStatus.Ok,
+          `v0.1 scaffold (registry: ${repos} repos) — actions land in v0.2`,
+        );
+        break;
+      }
+      case 'scaffold-unreachable': {
+        this.state = null;
+        this.log(
+          'warn',
+          `platform-registry is configured but unreachable: ${result.error}; module is running in scaffold mode`,
+        );
+        this.updateStatus(
+          InstanceStatus.UnknownWarning,
+          'platform-registry unreachable; module is running in scaffold mode',
+        );
+        break;
+      }
+    }
   }
 
   getConfigFields(): SomeCompanionConfigField[] {
@@ -67,6 +106,15 @@ class WaveInstance extends InstanceBase<WaveConfig> {
         width: 12,
         value:
           'WAVE Companion module v0.1 is a registry-grounded scaffold. Actions / feedbacks / variables land in v0.2 once wave-desktop exposes a local control plane. See the repo README Roadmap.',
+      },
+      {
+        type: 'textinput',
+        id: 'registryUrl',
+        label: 'Platform-registry state.json URL',
+        width: 12,
+        default: '',
+        tooltip:
+          'Raw URL to your platform-registry state.json. Leave blank to run in scaffold mode (dynamic capability discovery disabled).',
       },
       {
         type: 'textinput',

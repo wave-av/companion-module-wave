@@ -26,10 +26,32 @@ The platform map this module grounds against:
 | (MCP) | [`wave-av/mcp-server`](https://github.com/wave-av/mcp-server) | beta |
 | (Foundation) | [`wave-av/wave-foundation`](https://github.com/wave-av/wave-foundation) | ga |
 
-This list is generated from
-[`wave-foundation/frameworks/platform-registry/state.json`](https://github.com/wave-av/wave-foundation/blob/master/frameworks/platform-registry/state.json),
-the single source of truth for what's real. If something isn't here, it isn't
-shippable by this module.
+This list is generated from a platform-registry `state.json` — the single
+source of truth for what's real. If something isn't here, it isn't shippable
+by this module.
+
+## Configuration
+
+| Field | Required | Default | Behavior |
+|---|---|---|---|
+| **Platform-registry state.json URL** (`registryUrl`) | No | _(blank)_ | Raw URL to a platform-registry `state.json`. |
+
+This module ships with **no built-in registry URL** — there is no default
+endpoint baked into the code. What `registryUrl` is set to controls which of
+three states the module reports on `init()` and every config save, each
+logged distinctly:
+
+- **Not configured** — `registryUrl` is blank. The module deliberately runs
+  in **scaffold mode**: it logs that dynamic capability discovery is
+  disabled because no registry URL is set, and reports status `Ok`. This is
+  the expected out-of-the-box state, not a failure.
+- **Configured and reachable** — the registry is fetched (5s timeout) and
+  parsed; the module logs how many capabilities loaded and reports status
+  `Ok`.
+- **Configured but unreachable** — network error, non-2xx, timeout, or bad
+  JSON. The module logs a distinct warning naming the configured URL and the
+  failure, reports status `UnknownWarning`, and falls back to scaffold mode.
+  This never crashes the Companion process — the failure is soft by design.
 
 ## ⚠️ Erratum — previous README
 
