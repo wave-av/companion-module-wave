@@ -21,15 +21,15 @@ command -v rg >/dev/null 2>&1 || { echo "::error::content-policy: ripgrep (rg) r
 
 VIOLATIONS=0
 
-# Path globs exempt from scanning (vcs, vendored, build output, lockfiles, the
-# gate's own pattern strings). Extend per-repo via .guardignore.
+# Path globs exempt from scanning (vcs, vendored, build output, lockfiles).
+# Do not exclude this scanner's directory or .gitleaks.toml — a PR could hide
+# leaks there. Documented pattern strings in this file use `# guard:allow`.
+# Extend per-repo via .guardignore.
 IGNORE=(
   -g '!**/.git/**'
   -g '!**/node_modules/**'
   -g '!**/dist/**' -g '!**/build/**' -g '!**/.next/**' -g '!**/target/**' -g '!**/vendor/**'
   -g '!**/*.lock' -g '!**/pnpm-lock.yaml' -g '!**/package-lock.json' -g '!**/Cargo.lock' -g '!**/go.sum'
-  -g '!**/scripts/public-repo-guard/**'
-  -g '!**/.gitleaks.toml'
 )
 if [[ -f .guardignore ]]; then
   while IFS= read -r line; do
@@ -83,12 +83,12 @@ check WARN  stripe-object    '(cus|sub|price|prod)_[A-Za-z0-9]{14,}'            
 check BLOCK cf-account-id    'account_id\s*[:=]\s*["'"'"']?[0-9a-f]{32}'          'Hardcoded Cloudflare account_id — source it from $CLOUDFLARE_ACCOUNT_ID'
 
 # --- Internal network identifiers --------------------------------------------
-# Tailscale CGNAT range (100.64.0.0/10) — internal fleet IPs must never appear in
+# Tailscale CGNAT range (100.64.0.0/10) — internal fleet IPs must never appear in  # guard:allow documented-cgnat-range
 # a public tree. Narrow on purpose: never trips 127.0.0.1, 0.0.0.0, public IPs, or
 # RFC1918 documentation addresses. Pattern is byte-for-byte lockstep with
 # foundation's sync-public.sh / verify-public-mirror.sh INTERNAL_IP_PAT, so the
 # pre-publish mirror gate and this public-repo gate agree on the same leak class.
-check BLOCK internal-ip      '100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]{1,3}\.[0-9]{1,3}'  'Internal Tailscale-CGNAT IP (100.64.0.0/10) — internal fleet address, never publish'
+check BLOCK internal-ip      '100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]{1,3}\.[0-9]{1,3}'  'Internal Tailscale-CGNAT IP (100.64.0.0/10) — internal fleet address, never publish'  # guard:allow documented-cgnat-range
 
 # --- Developer / private-repo leakage ----------------------------------------
 # shellcheck disable=SC2016  # $HOME is literal guidance text, not meant to expand
