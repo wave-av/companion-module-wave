@@ -8,6 +8,13 @@ All notable changes to this project are documented here. The format is based on
 
 ### Fixed
 
+- Leak gates now scan files next to `content-policy.sh`. A pull request can
+  no longer hide WAVE BLOCK identifiers or a committed `.env` under
+  `scripts/public-repo-guard/`. The foundation secret-scan allowlist no
+  longer treats `:` as a match-everything needle.
+
+
+
 - `pr-agent` lane: fork-triggered `/` commands are now refused, and the AI
   call's budget fits inside its step. Three defects, one of them only visible
   once the first was fixed.

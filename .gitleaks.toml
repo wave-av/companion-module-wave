@@ -22,7 +22,7 @@ description = "Placeholders, templates, and test fixtures that are not real secr
 paths = [
   '''(^|/)\.git/''',                  # git metadata (packed-refs, objects) — not source, avoids --no-git FPs
   '''(^|/)\.gitleaks\.toml$''',
-  '''(^|/)scripts/public-repo-guard/''',
+  '''(^|/)scripts/public-repo-guard/content-policy\.sh$''',
   '''(^|/)(test|tests|__tests__|fixtures|__fixtures__|testdata|examples?|samples?|spec)/''',  # testdata/ = Go-conventional fixtures dir (holds published test vectors, e.g. Hardhat keys)
   '''\.(test|spec)\.[jt]sx?$''',     # co-located unit tests (foo.test.ts / foo.spec.tsx) — fixtures, not secrets
   '''\.(example|sample|template|dist)$''',
